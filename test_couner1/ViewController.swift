@@ -13,6 +13,8 @@ class ViewController: UIViewController {
         }
     }
     
+    private lazy var key = "username"
+    
     private lazy var currentLabel: UILabel = {
         let currentLabel = UILabel()
         currentLabel.font = .boldSystemFont(ofSize: 35)
@@ -53,6 +55,16 @@ class ViewController: UIViewController {
         buttonMinus.translatesAutoresizingMaskIntoConstraints = false
         return buttonMinus
     }()
+    private lazy var buttonReset: UIButton = {
+        let buttonReset = UIButton(type: .custom)
+        buttonReset.setTitle("Reset counter", for: .normal)
+        buttonReset.tintColor = .white
+        buttonReset.backgroundColor = .systemRed
+        buttonReset.layer.cornerRadius = 10
+        buttonReset.addTarget(self, action: #selector(tappedButtonReset), for: .touchUpInside)
+        buttonReset.translatesAutoresizingMaskIntoConstraints = false
+        return buttonReset
+    }()
     
     // MARK: Life Cycle
     override func viewDidLoad() {
@@ -62,45 +74,41 @@ class ViewController: UIViewController {
         view.addSubview(mainLabel)
         view.addSubview(buttonPlus)
         view.addSubview(buttonMinus)
+        view.addSubview(buttonReset)
         configureLayoutConstraints()
+        mainCounter = loadMainCounter()
     }
     
     // MARK: Actions
     @objc func tappedButtonPlus(_ sender: UIButton) {
         animateScale(sender)
         mainCounter += 1
+        saveMainCounter(value: mainCounter, key: key)
         guard currentCounter < 5 else {
-            let message = "counter > 5"
+            let message = "Current counter > 5"
             alerting(message: message)
             return
         }
         currentCounter += 1
-        
     }
-    
-    // MARK: Actions
-    @objc func tappedButton(_ sender: UIButton) {
-        animateScale(sender)
-        guard counter < 5 else {
-            zeroing()
-            return
-        }
-        counter += 1
-    }
-
     
     @objc func tappedButtonMinus(_ sender: UIButton) {
         animateScale(sender)
         mainCounter += 1
+        saveMainCounter(value: mainCounter, key: key)
         guard currentCounter > 0 else {
-            let message = "counter < 0"
+            let message = "Current counter < 0"
             alerting(message: message)
             return
         }
         currentCounter -= 1
-        
     }
     
+    @objc func tappedButtonReset(_ sender: UIButton) {
+        animateScale(sender)
+        mainCounter = 0
+        saveMainCounter(value: mainCounter, key: key)
+    }
     
     // MARK: Private Methods
     private func configureLayoutConstraints() {
@@ -109,14 +117,18 @@ class ViewController: UIViewController {
             currentLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             mainLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 95),
             mainLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            buttonPlus.topAnchor.constraint(equalTo: view.bottomAnchor, constant: -205),
-            buttonPlus.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 100),
-            buttonPlus.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -100),
+            buttonPlus.topAnchor.constraint(equalTo: view.bottomAnchor, constant: -150),
+            buttonPlus.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+            buttonPlus.trailingAnchor.constraint(equalTo: view.centerXAnchor, constant: -15),
             buttonPlus.heightAnchor.constraint(equalToConstant: 50),
             buttonMinus.topAnchor.constraint(equalTo: view.bottomAnchor, constant: -150),
-            buttonMinus.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 100),
-            buttonMinus.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -100),
-            buttonMinus.heightAnchor.constraint(equalToConstant: 50)
+            buttonMinus.leadingAnchor.constraint(equalTo: view.centerXAnchor, constant: 15),
+            buttonMinus.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
+            buttonMinus.heightAnchor.constraint(equalToConstant: 50),
+            buttonReset.topAnchor.constraint(equalTo: view.bottomAnchor, constant: -85),
+            buttonReset.leadingAnchor.constraint(equalTo: view.centerXAnchor, constant: 15),
+            buttonReset.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
+            buttonReset.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
@@ -136,6 +148,13 @@ class ViewController: UIViewController {
                 view.transform = .identity
             })
         })
+    }
+    private func saveMainCounter(value :Int, key: String){
+        UserDefaults.standard.set(value, forKey: key)
+    }
+    private func loadMainCounter() -> Int {
+        let mainCounterSaved = (UserDefaults.standard.value(forKey: key)) as? Int
+        return mainCounterSaved ?? 0
     }
 }
 
