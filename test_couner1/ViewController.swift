@@ -1,6 +1,7 @@
 import UIKit
 
 class ViewController: UIViewController {
+    
     // MARK: Private Properties
     private var currentCounter = 0 {
         didSet {
@@ -13,7 +14,9 @@ class ViewController: UIViewController {
         }
     }
     
-    private lazy var key = "username"
+    private let secondViewConroller: SecondViewController = SecondViewController(nibName: nil, bundle: nil)
+
+    private var key = "username"
     
     private lazy var currentLabel: UILabel = {
         let currentLabel = UILabel()
@@ -65,7 +68,16 @@ class ViewController: UIViewController {
         buttonReset.translatesAutoresizingMaskIntoConstraints = false
         return buttonReset
     }()
-    
+    private lazy var buttonChange: UIButton = {
+        let buttonChange = UIButton(type: .custom)
+        buttonChange.setTitle("Open SVC", for: .normal)
+        buttonChange.tintColor = .white
+        buttonChange.backgroundColor = .systemGreen
+        buttonChange.layer.cornerRadius = 10
+        buttonChange.addTarget(self, action: #selector(tappedButtonNext), for: .touchUpInside)
+        buttonChange.translatesAutoresizingMaskIntoConstraints = false
+        return buttonChange
+    }()
     // MARK: Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -75,6 +87,7 @@ class ViewController: UIViewController {
         view.addSubview(buttonPlus)
         view.addSubview(buttonMinus)
         view.addSubview(buttonReset)
+        view.addSubview(buttonChange)
         configureLayoutConstraints()
         mainCounter = loadMainCounter()
     }
@@ -109,6 +122,11 @@ class ViewController: UIViewController {
         mainCounter = 0
         saveMainCounter(value: mainCounter, key: key)
     }
+    @objc func tappedButtonNext(_ sender: UIButton) {
+        let secondViewController:SecondViewController = SecondViewController()
+        self.present(secondViewController, animated: true, completion: nil)
+
+     }
     
     // MARK: Private Methods
     private func configureLayoutConstraints() {
@@ -128,14 +146,18 @@ class ViewController: UIViewController {
             buttonReset.topAnchor.constraint(equalTo: view.bottomAnchor, constant: -85),
             buttonReset.leadingAnchor.constraint(equalTo: view.centerXAnchor, constant: 15),
             buttonReset.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
-            buttonReset.heightAnchor.constraint(equalToConstant: 50)
+            buttonReset.heightAnchor.constraint(equalToConstant: 50),
+            buttonChange.topAnchor.constraint(equalTo: view.bottomAnchor, constant: -85),
+            buttonChange.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+            buttonChange.trailingAnchor.constraint(equalTo: view.centerXAnchor, constant: -15),
+            buttonChange.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
     private func alerting(message :String) {
         let alert = UIAlertController(title: "Warning", message: message , preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
-            self.currentCounter = 0
+            //self.currentCounter = 0
         }))
         present(alert, animated: true, completion: nil)
         
@@ -156,5 +178,7 @@ class ViewController: UIViewController {
         let mainCounterSaved = (UserDefaults.standard.value(forKey: key)) as? Int
         return mainCounterSaved ?? 0
     }
+    
+    
 }
 
